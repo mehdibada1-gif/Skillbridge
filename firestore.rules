@@ -1,0 +1,19 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read access to learning paths and jobs for any user
+    match /learningPaths/{path} {
+      allow read, write: if true;
+    }
+
+    match /jobs/{jobId} {
+      allow read, write: if true;
+    }
+
+    // Default deny all other reads and writes
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
