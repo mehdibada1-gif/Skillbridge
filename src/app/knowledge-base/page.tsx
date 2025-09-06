@@ -1,7 +1,6 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import AppHeader from "@/components/app/header";
 
 export default function KnowledgeBasePage() {
   const faqItems = [
@@ -37,7 +36,6 @@ export default function KnowledgeBasePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <AppHeader />
       <main className="flex-1 container mx-auto p-4 sm:p-6 md:p-8">
         <Card className="max-w-4xl mx-auto">
           <CardHeader className="text-center">

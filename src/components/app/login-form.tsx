@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -6,7 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -28,7 +31,9 @@ const loginSchema = z.object({
 });
 
 const signupSchema = z.object({
+    name: z.string().min(2, { message: "Name must be at least 2 characters." }),
     email: z.string().email({ message: "Invalid email address." }),
+    country: z.string({ required_error: "Please select a country." }),
     password: z.string().min(6, { message: "Password must be at least 6 characters." }),
     confirmPassword: z.string()
 }).refine(data => data.password === data.confirmPassword, {
@@ -36,6 +41,14 @@ const signupSchema = z.object({
     path: ["confirmPassword"]
 });
 
+const countries = [
+    { name: 'Italy', code: 'it' },
+    { name: 'Netherlands', code: 'nl' },
+    { name: 'Sweden', code: 'se' },
+    { name: 'Lebanon', code: 'lb' },
+    { name: 'Tunisia', code: 'tn' },
+    { name: 'Morocco', code: 'ma' },
+];
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -53,6 +66,7 @@ export default function LoginForm() {
   const signupForm = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       confirmPassword: ""
@@ -77,7 +91,19 @@ export default function LoginForm() {
   async function onSignup(data: z.infer<typeof signupSchema>) {
     setIsLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const user = userCredential.user;
+
+      // Create a document for the new user in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        name: data.name,
+        email: data.email,
+        country: data.country,
+        skills: [],
+        createdAt: new Date(),
+      });
+
       toast({
           title: "Signup Successful",
           description: "You can now log in with your new account.",
@@ -136,7 +162,20 @@ export default function LoginForm() {
         </TabsContent>
         <TabsContent value="signup">
             <Form {...signupForm}>
-                <form onSubmit={signupForm.handleSubmit(onSignup)} className="space-y-6 pt-4">
+                <form onSubmit={signupForm.handleSubmit(onSignup)} className="space-y-4 pt-4">
+                    <FormField
+                    control={signupForm.control}
+                    name="name"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                            <Input placeholder="John Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
                     <FormField
                     control={signupForm.control}
                     name="email"
@@ -149,6 +188,26 @@ export default function LoginForm() {
                         <FormMessage />
                         </FormItem>
                     )}
+                    />
+                     <FormField
+                      control={signupForm.control}
+                      name="country"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Country</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select your country" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {countries.map(c => <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                     <FormField
                     control={signupForm.control}

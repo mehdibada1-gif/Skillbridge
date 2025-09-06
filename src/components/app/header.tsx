@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { BrainCircuit, LogOut, Globe } from "lucide-react";
+import { BrainCircuit, LogOut, Globe, User, BookOpen, Settings, BarChart, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -29,12 +29,12 @@ export default function AppHeader() {
     { name: 'Tunisia', code: 'tn' },
     { name: 'Morocco', code: 'ma' },
   ];
-
-  if (pathname === '/login') return null;
+  
+  const showLoginButton = !user && !loading && pathname !== '/login' && pathname !== '/signup';
 
   return (
-    <header className="w-full px-4 md:px-6 h-16 flex items-center bg-card border-b">
-      <div className="container mx-auto flex items-center justify-between">
+    <header className="w-full px-4 md:px-6 h-16 flex items-center bg-card border-b z-10 shrink-0">
+      <div className="w-full flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <BrainCircuit className="h-7 w-7 text-primary" />
           <span className="text-xl font-bold font-headline text-foreground">
@@ -42,7 +42,7 @@ export default function AppHeader() {
           </span>
         </Link>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
@@ -82,10 +82,24 @@ export default function AppHeader() {
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => router.push('/dashboard')}>
-                          Dashboard
+                          <BarChart className="mr-2 h-4 w-4" />
+                          <span>Dashboard</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => router.push('/dashboard/portfolio')}>
-                          Portfolio
+                          <User className="mr-2 h-4 w-4" />
+                          <span>My Portfolio</span>
+                        </DropdownMenuItem>
+                         <DropdownMenuItem onClick={() => router.push('/dashboard/my-content')}>
+                          <Bookmark className="mr-2 h-4 w-4" />
+                          <span>My Content</span>
+                        </DropdownMenuItem>
+                         <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Settings</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push('/knowledge-base')}>
+                          <BookOpen className="mr-2 h-4 w-4" />
+                          <span>Knowledge Base</span>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={handleLogout}>
@@ -94,11 +108,11 @@ export default function AppHeader() {
                         </DropdownMenuItem>
                     </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-                <Button asChild variant="outline">
+            ) : showLoginButton ? (
+                 <Button asChild>
                     <Link href="/login">Login</Link>
                 </Button>
-            )}
+            ) : null}
         </div>
       </div>
     </header>

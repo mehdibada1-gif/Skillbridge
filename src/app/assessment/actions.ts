@@ -1,16 +1,19 @@
 "use server";
 
 import { skillAssessmentCategorization } from '@/ai/flows/skill-assessment-categorization';
+import { auth, db } from "@/lib/firebase";
+import { doc, updateDoc } from 'firebase/firestore';
 import { z } from 'zod';
 
 const assessmentSchema = z.object({
   answers: z.array(z.object({
     question: z.string(),
     answer: z.string(),
-  }))
+  })),
+  userId: z.string(),
 });
 
-type AssessmentInput = z.infer<typeof assessmentSchema>;
+type AssessmentInput = Omit<z.infer<typeof assessmentSchema>, 'userId'>;
 
 type ActionResult = {
   success: boolean;
@@ -19,8 +22,10 @@ type ActionResult = {
   error?: string;
 }
 
-export async function analyzeSkillsAction(data: AssessmentInput): Promise<ActionResult> {
-  const validation = assessmentSchema.safeParse(data);
+export async function analyzeSkillsAction(userId: string, data: AssessmentInput): Promise<ActionResult> {
+  const input = { ...data, userId };
+  const validation = assessmentSchema.safeParse(input);
+
   if (!validation.success) {
     return { success: false, skills: [], reasoning: "", error: "Invalid input data." };
   }
@@ -40,7 +45,6 @@ export async function analyzeSkillsAction(data: AssessmentInput): Promise<Action
 
     results.forEach(result => {
       result.skillCategories.forEach(skill => {
-        // Simple normalization
         const normalizedSkill = skill.trim().toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
         if (normalizedSkill) {
             allSkills.add(normalizedSkill);
@@ -50,6 +54,16 @@ export async function analyzeSkillsAction(data: AssessmentInput): Promise<Action
     });
     
     const combinedReasoning = `Based on your answers, we've identified several key skill areas:\n\n` + allReasoning.join('\n\n');
+    const finalSkills = Array.from(allSkills);
+
+    // Save skills to user's Firestore document
+    if (validation.data.userId && finalSkills.length > 0) {
+      const userDocRef = doc(db, "users", validation.data.userId);
+      await updateDoc(userDocRef, {
+        skills: finalSkills
+      });
+    }
+
 
     if (allSkills.size === 0) {
         return {
@@ -61,7 +75,7 @@ export async function analyzeSkillsAction(data: AssessmentInput): Promise<Action
 
     return {
       success: true,
-      skills: Array.from(allSkills),
+      skills: finalSkills,
       reasoning: combinedReasoning,
     };
 

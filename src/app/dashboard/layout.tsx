@@ -1,5 +1,6 @@
-import { SidebarProvider, Sidebar, SidebarInset } from "@/components/ui/sidebar";
-import DashboardNav from "@/components/app/dashboard-nav";
+
+import AppHeader from "@/components/app/header";
+import { Suspense } from "react";
 
 export default function DashboardLayout({
   children,
@@ -7,13 +8,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <DashboardNav />
-      </Sidebar>
-      <SidebarInset className="bg-background">
-          {children}
-      </SidebarInset>
-    </SidebarProvider>
+    <>
+       <AppHeader />
+       <Suspense>
+         {children}
+       </Suspense>
+    </>
   );
 }

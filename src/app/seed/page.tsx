@@ -1,11 +1,9 @@
 import SeedButton from "@/components/app/seed-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import AppHeader from "@/components/app/header";
 
 export default function SeedPage() {
   return (
     <div className="flex flex-col min-h-screen">
-      <AppHeader />
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
         <div className="w-full max-w-lg">
           <Card>

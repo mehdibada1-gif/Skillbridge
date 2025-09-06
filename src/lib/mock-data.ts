@@ -117,3 +117,33 @@ export const jobOpportunities = [
     tags: ["Web Development", "Problem Solving"]
   }
 ];
+
+export const articles = [
+  {
+    title: "5 Steps to Landing Your First Tech Internship",
+    author: "Jane Doe, Career Coach",
+    date: "2024-05-15",
+    imageUrl: "https://picsum.photos/800/400?random=10",
+    dataAiHint: "tech internship",
+    excerpt: "Landing your first internship in the tech world can feel daunting. Here are five actionable steps to help you stand out and get your foot in the door.",
+    content: "Full article content goes here. It would be a longer markdown string with detailed information about networking, resume building, project portfolios, interview preparation, and persistence."
+  },
+  {
+    title: "How Social Impact Projects Can Boost Your Resume",
+    author: "John Smith, Social Entrepreneur",
+    date: "2024-05-10",
+    imageUrl: "https://picsum.photos/800/400?random=11",
+    dataAiHint: "social impact",
+    excerpt: "Employers are increasingly looking for candidates with real-world experience and a commitment to social good. Learn how contributing to a social impact project can make you a more attractive candidate.",
+    content: "Full article content goes here. This would detail how to find projects, the types of skills you can develop, and how to effectively showcase this experience on your resume and in interviews."
+  },
+  {
+    title: "A Beginner's Guide to Networking in the Digital Age",
+    author: "Emily White, HR Specialist",
+    date: "2024-05-01",
+    imageUrl: "https://picsum.photos/800/400?random=12",
+    dataAiHint: "digital networking",
+    excerpt: "Networking isn't just about shaking hands at events anymore. This guide provides modern strategies for building meaningful professional connections online.",
+    content: "Full article content goes here. This would cover using LinkedIn effectively, participating in online communities, reaching out for informational interviews, and maintaining relationships."
+  }
+];

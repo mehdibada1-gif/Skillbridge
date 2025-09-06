@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/firebase";
 import { collection, writeBatch, doc } from "firebase/firestore";
-import { learningPaths, jobOpportunities } from "@/lib/mock-data";
+import { learningPaths, jobOpportunities, articles } from "@/lib/mock-data";
 
 type ActionResult = {
   success: boolean;
@@ -25,6 +25,13 @@ export async function seedDatabase(): Promise<ActionResult> {
     jobOpportunities.forEach((job) => {
       const docRef = doc(jobsCollection); // Auto-generate ID
       batch.set(docRef, job);
+    });
+
+    // Seed Articles
+    const articlesCollection = collection(db, "articles");
+    articles.forEach((article) => {
+      const docRef = doc(articlesCollection); // Auto-generate ID
+      batch.set(docRef, article);
     });
 
     await batch.commit();

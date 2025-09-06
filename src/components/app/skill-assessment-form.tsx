@@ -5,12 +5,13 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -52,6 +53,7 @@ export default function SkillAssessmentForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const [user, loadingUser] = useAuthState(auth);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -66,9 +68,18 @@ export default function SkillAssessmentForm() {
   });
 
   async function onSubmit(data: FormValues) {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Not Authenticated",
+        description: "You must be logged in to submit an assessment.",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const result = await analyzeSkillsAction(data);
+      const result = await analyzeSkillsAction(user.uid, data);
 
       if (result.success) {
         const params = new URLSearchParams({
@@ -86,6 +97,7 @@ export default function SkillAssessmentForm() {
         title: "Analysis Failed",
         description: "There was an error processing your assessment. Please try again.",
       });
+    } finally {
       setIsLoading(false);
     }
   }
@@ -118,7 +130,7 @@ export default function SkillAssessmentForm() {
         })}
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={isLoading} size="lg">
+          <Button type="submit" disabled={isLoading || loadingUser} size="lg">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

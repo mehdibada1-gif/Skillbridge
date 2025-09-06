@@ -2,18 +2,69 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read access to learning paths and jobs for any user
-    match /learningPaths/{path} {
-      allow read, write: if true;
+
+    // Helper function to check if a user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
     }
 
+    // Helper function to check if the user is the owner of the document
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Helper function to check if incoming data only contains allowed fields to update
+    function canUpdateProfile(data) {
+      return data.keys().hasOnly(['name', 'bio', 'photoURL', 'linkedinUrl']);
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      // Anyone can see a user's profile (for the community hub)
+      allow get: if true;
+      allow list: if isAuthenticated();
+
+      // A user can create their own document on signup
+      allow create: if isOwner(userId);
+      
+      // A user can only update specific, non-critical fields of their own profile.
+      // Fields like email, uid, skills, country are set at creation and cannot be changed here.
+      allow update: if isOwner(userId) && canUpdateProfile(request.resource.data);
+
+      // No one can delete user documents through the app
+      allow delete: if false;
+    }
+
+    // Learning Paths: Read-only for all authenticated users
+    match /learningPaths/{pathId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Should only be written by an admin/seed script
+    }
+    
+    // Jobs: Read-only for all users
     match /jobs/{jobId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if false; // Should only be written by an admin/seed script
+    }
+    
+    // Articles: Read-only for all users
+    match /articles/{articleId} {
+       allow read: if true;
+       allow write: if false; // Should only be written by an admin/seed script
     }
 
-    // Default deny all other reads and writes
-    match /{document=**} {
-      allow read, write: if false;
+    // Job Applications: Users can only create/read/delete their own applications
+    match /jobApplications/{applicationId} {
+        allow read, delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+        allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+        allow update: if false;
+    }
+
+    // Saved Articles: Users can only create/read/delete their own saved articles
+    match /savedArticles/{savedId} {
+        allow read, delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+        allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+        allow update: if false;
     }
   }
 }
