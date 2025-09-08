@@ -30,7 +30,7 @@ export default function AppHeader() {
     { name: 'Morocco', code: 'ma' },
   ];
   
-  const showLoginButton = !user && !loading && pathname !== '/login' && pathname !== '/signup';
+  const showLoginButton = !user && !loading && pathname !== '/login';
 
   return (
     <header className="w-full px-4 md:px-6 h-16 flex items-center bg-card border-b z-10 shrink-0">

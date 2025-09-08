@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, db } from '@/lib/firebase';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Briefcase, Newspaper, ArrowRight, MapPin } from 'lucide-react';
@@ -129,7 +129,7 @@ export default function MyContentPage() {
             <TabsContent value="jobs">
                 <div className="space-y-4">
                     {loadingJobs ? (
-                         Array.from({ length: 2 }).map((_, index) => <Skeleton key={index} className="h-32 w-full" />)
+                         Array.from({ length: 2 }).map((_, index) => <Skeleton key={index} className="h-40 w-full" />)
                     ) : appliedJobs.length > 0 ? (
                         appliedJobs.map(job => (
                            <Card key={job.id}>
@@ -169,21 +169,30 @@ export default function MyContentPage() {
             <TabsContent value="articles">
                  <div className="space-y-4">
                     {loadingArticles ? (
-                        Array.from({ length: 2 }).map((_, index) => <Skeleton key={index} className="h-32 w-full" />)
+                        Array.from({ length: 2 }).map((_, index) => <Skeleton key={index} className="h-40 w-full" />)
                     ) : savedArticles.length > 0 ? (
                         savedArticles.map(article => (
-                           <Card key={article.id} className="overflow-hidden">
+                           <Card key={article.id} className="overflow-hidden flex flex-col">
+                               <Image 
+                                 src={article.imageUrl}
+                                 alt={article.title}
+                                 width={800}
+                                 height={400}
+                                 className="w-full h-40 object-cover"
+                                 data-ai-hint={article.dataAiHint}
+                               />
                                <CardHeader>
-                                   <div className="flex justify-between items-start">
-                                       <div>
-                                           <CardTitle className="text-lg">{article.title}</CardTitle>
-                                           <CardDescription>By {article.author}</CardDescription>
-                                       </div>
-                                       <Button asChild variant="secondary" size="sm">
-                                           <Link href={`/articles/${article.id}`}>Read <ArrowRight className="ml-2 h-4 w-4" /></Link>
-                                       </Button>
-                                   </div>
+                                   <CardTitle className="text-lg">{article.title}</CardTitle>
+                                   <CardDescription>By {article.author}</CardDescription>
                                </CardHeader>
+                               <CardContent className='flex-grow'>
+                                  <p className="text-muted-foreground text-sm line-clamp-3">{article.excerpt}</p>
+                               </CardContent>
+                               <CardFooter>
+                                   <Button asChild variant="secondary" size="sm" className='w-full'>
+                                       <Link href={`/articles/${article.id}`}>Read Full Article <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                                   </Button>
+                               </CardFooter>
                             </Card>
                         ))
                     ) : (

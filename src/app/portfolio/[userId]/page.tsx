@@ -11,7 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { userPortfolio } from "@/lib/mock-data";
 import { Award, CheckCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import AppHeader from "@/components/app/header";
 
 type UserProfile = {
   name: string;
@@ -81,8 +80,6 @@ export default function UserPortfolioPage({ params }: { params: { userId: string
   }
 
   return (
-    <>
-    <AppHeader />
     <div className="p-4 sm:p-6 lg:p-8 space-y-8">
       <Card>
         <CardContent className="p-6 flex flex-col items-center text-center gap-4">
@@ -146,6 +143,5 @@ export default function UserPortfolioPage({ params }: { params: { userId: string
         </Card>
       </div>
     </div>
-    </>
   );
 }

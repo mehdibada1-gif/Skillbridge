@@ -11,13 +11,14 @@ import { auth } from "@/lib/firebase";
 const publicNavItems = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/articles", icon: Newspaper, label: "Articles" },
-  { href: "/jobs", icon: Briefcase, label: "Opportunities" },
+  { href: "/jobs", icon: Briefcase, label: "Jobs" },
   { href: "/community", icon: Users, label: "Community" },
 ];
 
 const privateNavItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/dashboard/my-content", icon: Bookmark, label: "My Content" },
+  { href: "/dashboard/portfolio", icon: User, label: "Portfolio" },
   { href: "/dashboard/settings", icon: Settings, label: "Settings" },
 ];
 
@@ -38,17 +39,13 @@ export default function AppBottomNav() {
     )
   }
 
-  const navItems = user 
-    ? [...privateNavItems, { href: "/community", icon: Users, label: "Community" }] 
-    : publicNavItems;
-  const uniqueNavItems = Array.from(new Map(navItems.map(item => [item.href, item])).values());
-
-
+  const navItems = user ? privateNavItems : publicNavItems;
+  
   return (
     <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm h-16 bg-card border-t z-10">
       <nav className="h-full">
         <ul className="h-full flex justify-around items-center">
-          {uniqueNavItems.map((item) => {
+          {navItems.map((item) => {
             const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
             return (
               <li key={item.href} className="h-full">
